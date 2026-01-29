@@ -510,3 +510,46 @@ img, .container, .card {
     max-width: 100%; /* Nunca deixa ser maior que a tela */
     height: auto;    /* Ajusta a altura automaticamente */
 }
+
+/* =========================================
+   AJUSTES PARA CELULAR (RESPONSIVIDADE)
+   ========================================= */
+@media (max-width: 768px) {
+
+    /* 1. Transforma o Painel Lateral em Barra Superior */
+    .sidebar, .painel-admin, nav {
+        width: 100% !important;       /* Ocupa a largura toda */
+        height: auto !important;      /* Altura automática (encolhe) */
+        position: relative !important;/* Para de flutuar por cima do conteúdo */
+        display: flex !important;     /* Coloca logo e botão lado a lado */
+        flex-direction: row !important;
+        justify-content: space-between; /* Espalha (Logo na esq, Sair na dir) */
+        align-items: center;
+        padding: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    /* 2. Ajusta a Logo para não estourar */
+    .logo, .marca, h1 {
+        font-size: 1.2rem !important; /* Diminui a fonte da logo */
+        margin: 0 !important;
+    }
+
+    /* 3. Ajusta o Botão de Sair */
+    .btn-sair, .logout-btn {
+        font-size: 0.9rem !important;
+        padding: 5px 10px !important;
+    }
+
+    /* 4. Libera o conteúdo principal (O Catálogo) */
+    .conteudo-principal, .main, .container {
+        margin-left: 0 !important;    /* Remove a margem esquerda do PC */
+        width: 100% !important;       /* Ocupa a tela toda */
+        padding-top: 20px;            /* Um respiro em cima */
+    }
+
+    /* 5. Esconde menus menos importantes se necessário */
+    .menu-links {
+        display: none; /* Opcional: esconde lista de links no mobile para limpar */
+    }
+}
