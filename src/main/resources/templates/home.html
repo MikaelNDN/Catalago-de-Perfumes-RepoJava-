@@ -16,7 +16,7 @@
         <div class="headerBrand">
             <h1>MCosmeticos</h1>
         </div>
-        <div style="display: flex; gap: 10px; align-items: center;">
+        <div class="header-buttons" style="display: flex; gap: 10px; align-items: center;">
             <a th:if="${session.usuarioLogado != null and session.usuarioLogado.admin}"
                href="/admin" class="authBtn" style="background-color: #333; border: 1px solid #555;">
                 ⚙️ Painel Admin
