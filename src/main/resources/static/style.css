@@ -493,3 +493,20 @@ a {
         display: block;
     }
 }
+/* Garante que nada ultrapasse a largura da tela */
+* {
+    box-sizing: border-box; /* A borda conta no tamanho total */
+}
+
+body, html {
+    overflow-x: hidden; /* Esconde a barra de rolagem lateral */
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* Regra de ouro para imagens e containers */
+img, .container, .card {
+    max-width: 100%; /* Nunca deixa ser maior que a tela */
+    height: auto;    /* Ajusta a altura automaticamente */
+}
