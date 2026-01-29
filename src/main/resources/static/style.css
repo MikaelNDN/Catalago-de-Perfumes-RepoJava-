@@ -512,44 +512,39 @@ img, .container, .card {
 }
 
 /* =========================================
-   AJUSTES PARA CELULAR (RESPONSIVIDADE)
+   CORREÇÃO DO CABEÇALHO PARA CELULAR
    ========================================= */
 @media (max-width: 768px) {
 
-    /* 1. Transforma o Painel Lateral em Barra Superior */
-    .sidebar, .painel-admin, nav {
-        width: 100% !important;       /* Ocupa a largura toda */
-        height: auto !important;      /* Altura automática (encolhe) */
-        position: relative !important;/* Para de flutuar por cima do conteúdo */
-        display: flex !important;     /* Coloca logo e botão lado a lado */
-        flex-direction: row !important;
-        justify-content: space-between; /* Espalha (Logo na esq, Sair na dir) */
-        align-items: center;
-        padding: 10px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    /* 1. Arruma o container principal do Header */
+    .header {
+        display: flex !important;
+        flex-direction: column !important; /* Empilha: Logo em cima, botões embaixo */
+        align-items: center !important;    /* Centraliza tudo */
+        padding: 10px 5px !important;      /* Diminui o "inchaço" (padding) */
+        height: auto !important;           /* Deixa a altura crescer se precisar */
     }
 
-    /* 2. Ajusta a Logo para não estourar */
-    .logo, .marca, h1 {
-        font-size: 1.2rem !important; /* Diminui a fonte da logo */
-        margin: 0 !important;
+    /* 2. Diminui a Logo para caber na tela */
+    .headerBrand h1 {
+        font-size: 1.5rem !important; /* Tamanho da fonte menor */
+        margin-bottom: 10px !important; /* Um espacinho entre logo e botões */
+        text-align: center;
     }
 
-    /* 3. Ajusta o Botão de Sair */
-    .btn-sair, .logout-btn {
-        font-size: 0.9rem !important;
-        padding: 5px 10px !important;
+    /* 3. Arruma a caixa que segura os botões */
+    /* Como sua div não tem classe, pegamos ela assim: */
+    .header > div[style*="display: flex"] { 
+        width: 100% !important;
+        justify-content: center !important; /* Centraliza os botões */
+        gap: 5px !important; /* Diminui o espaço entre os botões */
+        flex-wrap: wrap; /* Se não couber na linha, quebra para baixo */
     }
 
-    /* 4. Libera o conteúdo principal (O Catálogo) */
-    .conteudo-principal, .main, .container {
-        margin-left: 0 !important;    /* Remove a margem esquerda do PC */
-        width: 100% !important;       /* Ocupa a tela toda */
-        padding-top: 20px;            /* Um respiro em cima */
-    }
-
-    /* 5. Esconde menus menos importantes se necessário */
-    .menu-links {
-        display: none; /* Opcional: esconde lista de links no mobile para limpar */
+    /* 4. Deixa os botões (Admin e Sair) mais delicados */
+    .authBtn {
+        font-size: 0.85rem !important; /* Letra menor */
+        padding: 8px 12px !important;  /* Botão menos "gordo" */
+        width: auto !important;        /* Tamanho flexível */
     }
 }
