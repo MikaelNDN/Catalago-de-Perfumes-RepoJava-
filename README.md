@@ -1,6 +1,6 @@
 # 🌸 MCosmeticos - Catálogo Digital
 
-> **Acesse o projeto online:** [Clique aqui para ver a Demo]((https://catalago-de-perfumes-production.up.railway.app/))
+> **Acesse o projeto online:** [Clique aqui para ver a Demo](https://catalago-de-perfumes-production.up.railway.app/)
 
 Sistema de gerenciamento e catálogo de perfumes desenvolvido para facilitar a vitrine de produtos e integração com vendas via WhatsApp. O projeto foca em performance, segurança e uma experiência mobile-first.
 
