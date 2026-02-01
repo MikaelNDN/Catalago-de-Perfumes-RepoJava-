@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Criar Conta - MCosmeticos</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<main class="loginMain">
+    <form action="/cadastro" method="post" class="loginForm">
+        <h1 class="loginTitle">Criar Conta</h1>
+
+        <label class="loginLabel">Nome Completo</label>
+        <input type="text" name="nome" class="loginInput" placeholder="Seu nome" required>
+
+        <label class="loginLabel">E-mail</label>
+        <input type="email" name="email" class="loginInput" placeholder="seu@email.com" required>
+
+        <label class="loginLabel">Senha</label>
+        <input type="password" name="password" class="loginInput" placeholder="Sua senha" required>
+
+        <button type="submit" class="loginButton">CADASTRAR</button>
+
+        <div style="text-align:center; margin-top:10px;">
+            <a href="/login" style="color:#2ecc40; text-decoration:none;">Já tenho conta</a>
+        </div>
+    </form>
+</main>
+</body>
+</html>

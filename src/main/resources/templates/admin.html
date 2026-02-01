@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Painel Admin - MCosmeticos</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: inline-block;
+            text-transform: uppercase;
+        }
+
+        .disponivel {
+            background: rgba(46, 204, 64, 0.2);
+            color: #2ecc40;
+            border: 1px solid #2ecc40;
+        }
+
+        .esgotado {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+
+        .action-btn {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: white;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        .action-btn:hover { opacity: 0.8; }
+
+
+        .btn-toggle { background: #34495e; border: 1px solid #555; }
+        .btn-edit   { background: #f39c12; }
+        .btn-delete { background: #c0392b; }
+
+
+        table { width: 100%; border-collapse: collapse; background: #23272f; border-radius: 8px; overflow: hidden; }
+        th { background: #1c1e21; padding: 15px; color: #fff; text-align: left; }
+        td { padding: 15px; border-bottom: 1px solid #333; color: #ddd; vertical-align: middle; }
+    </style>
+</head>
+<body>
+<div class="catalogWrapper">
+    <header class="header">
+        <div class="headerBrand">
+            <h1>Painel Administrativo</h1>
+        </div>
+        <div style="display:flex; gap:10px;">
+            <a href="/" class="authBtn" style="background:#333;">Ver Catálogo</a>
+            <a href="/logout" class="authBtn">Sair</a>
+        </div>
+    </header>
+
+    <main class="mainContent">
+
+        <section class="brandSection">
+            <h2>Cadastrar / Editar Perfume</h2>
+
+            <form action="/admin/salvar" method="post" enctype="multipart/form-data"
+                  th:object="${perfume}" class="adminForm" id="formPerfume">
+
+                <input type="hidden" th:field="*{id}" id="inputId">
+
+                <div class="formGroup">
+                    <label>Nome:</label>
+                    <input type="text" th:field="*{nome}" id="inputNome" placeholder="Ex:Malbec Gold" required>
+                </div>
+
+                <div class="formGroup">
+                    <label>Marca (Linha):</label>
+                    <input type="text" th:field="*{marca}" id="inputMarca" placeholder="Malbec" required>
+                </div>
+
+                <div class="formGroup">
+                    <label>Categoria (Empresa):</label>
+                    <select th:field="*{categoria}" id="inputCategoria" required>
+                        <option value="Hinode">Hinode</option>
+                        <option value="Natura">Natura</option>
+                        <option value="O Boticario">O Boticário</option>
+                        <option value="Avon">Avon</option>
+                    </select>
+                </div>
+
+                <div class="formGroup">
+                    <label>Preço:</label>
+                    <input type="number" step="0.01" th:field="*{preco}" id="inputPreco" placeholder="152.90" required>
+                </div>
+
+                <div class="formGroup">
+                    <label>Foto do Perfume:</label>
+                    <input type="file" name="file" accept="image/*" style="color:white;">
+                    <small style="color:#aaa;">Deixe vazio para manter a atual.</small>
+                </div>
+
+                <div class="formGroup">
+                    <label>Descrição:</label>
+                    <textarea th:field="*{descricao}" id="inputDescricao" rows="3" placeholder="Detalhes do perfume..."></textarea>
+                </div>
+
+                <div class="checkboxGroup">
+                    <label><input type="checkbox" th:field="*{promocao}" id="inputPromocao"> PROMOÇÃO?</label>
+                    <label><input type="checkbox" th:field="*{esgotado}" id="inputEsgotado"> ESGOTADO?</label>
+                </div>
+
+                <button type="submit" class="perfumeBtn" style="width:100%;">SALVAR</button>
+                <button type="button" onclick="limparFormulario()" style="width:100%; margin-top:10px; background:#555; border:none; color:white; padding:10px; cursor:pointer;">LIMPAR / NOVO</button>
+            </form>
+        </section>
+
+        <section class="brandSection" style="margin-top: 40px;">
+            <h2>Gerenciar Perfumes</h2>
+            <div style="color: white; overflow-x:auto;">
+                <table>
+                    <thead>
+                    <tr>
+                        <th style="text-align:center;">Foto</th>
+                        <th>Nome</th>
+                        <th>Preço</th>
+                        <th style="text-align:center;">Status</th>
+                        <th style="text-align:center;">Ações</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="p : ${lista}">
+                        <td style="text-align:center;">
+                            <img th:src="${p.imagem}" width="50" height="50" style="border-radius:4px; object-fit:cover;" onerror="this.src='/logo.png'">
+                        </td>
+
+                        <td th:text="${p.nome}" style="font-weight:bold;">Nome</td>
+                        <td th:text="'R$ ' + ${#numbers.formatDecimal(p.preco, 1, 2)}">Preço</td>
+
+                        <td style="text-align:center;">
+                            <span th:if="${p.esgotado}" class="status-badge esgotado">ESGOTADO</span>
+                            <span th:unless="${p.esgotado}" class="status-badge disponivel">DISPONÍVEL</span>
+                        </td>
+
+                        <td style="display:flex; gap:8px; justify-content:center; align-items:center; padding: 15px;">
+
+                            <a th:href="@{/admin/toggleEsgotado/{id}(id=${p.id})}"
+                               class="action-btn btn-toggle" title="Mudar Estoque">
+                                <i class="fa-solid fa-box-open"></i>
+                            </a>
+
+                            <button type="button" class="action-btn btn-edit"
+                                    th:onclick="preencherEdicao([[${p.id}]], [[${p.nome}]], [[${p.marca}]], [[${p.categoria}]], [[${p.preco}]], [[${p.descricao}]], [[${p.promocao}]], [[${p.esgotado}]])"
+                                    title="Editar">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+
+                            <a th:href="@{/admin/deletar/{id}(id=${p.id})}"
+                               class="action-btn btn-delete"
+                               onclick="return confirm('Tem certeza que deseja excluir?');"
+                               title="Excluir">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script>
+    function preencherEdicao(id, nome, marca, categoria, preco, descricao, promocao, esgotado) {
+        document.getElementById('inputId').value = id;
+        document.getElementById('inputNome').value = nome;
+        document.getElementById('inputMarca').value = marca;
+        document.getElementById('inputCategoria').value = categoria;
+        document.getElementById('inputPreco').value = preco;
+        document.getElementById('inputDescricao').value = descricao || '';
+        document.getElementById('inputPromocao').checked = promocao;
+        document.getElementById('inputEsgotado').checked = esgotado;
+
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function limparFormulario() {
+        document.getElementById('formPerfume').reset();
+        document.getElementById('inputId').value = '';
+    }
+</script>
+
+</body>
+</html>

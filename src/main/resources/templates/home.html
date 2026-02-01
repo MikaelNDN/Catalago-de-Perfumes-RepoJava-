@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MCosmeticos - Catálogo</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+<div class="catalogWrapper">
+
+    <header class="header">
+        <div class="headerBrand">
+            <h1>MCosmeticos</h1>
+        </div>
+        <div class="header-buttons" style="display: flex; gap: 10px; align-items: center;">
+            <a th:if="${session.usuarioLogado != null and session.usuarioLogado.admin}"
+               href="/admin" class="authBtn" style="background-color: #333; border: 1px solid #555;">
+                ⚙️ Painel Admin
+            </a>
+            <a href="/logout" class="authBtn">Sair</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="swiper mySwiper heroBg">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide"><img src="/banners/banner1.png" class="heroImg" onerror="this.src='/banner1.png'"/></div>
+                <div class="swiper-slide"><img src="/banners/fundo.jpg" class="heroImg" onerror="this.src='/fundo.jpg'"/></div>
+            </div>
+            <div class="swiper-pagination"></div>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+        </div>
+    </section>
+
+    <main class="mainContent">
+        <section class="brandSection">
+            <div class="filterContainer">
+                <div class="searchWrapper" style="display:flex; justify-content:center; margin-bottom: 30px;">
+                    <div class="searchForm" style="display:flex; gap:10px; max-width:600px; width:100%;">
+                        <input type="text" id="campoBusca" placeholder="Busque por nome ou marca..."
+                               onkeyup="buscarPerfumes()"
+                               style="flex:1; padding:15px; border-radius:30px; border:none; outline:none; font-size:1rem;" />
+                        <button type="button" onclick="buscarPerfumes()"
+                                style="background:#e74c3c; color:white; border:none; width:50px; height:50px; border-radius:50%; cursor:pointer;">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <h2>Navegue por Categoria</h2>
+                <div class="categoryBar">
+                    <button onclick="mudarCategoria('Todos')" class="catBtn active" id="btn-Todos">Todos</button>
+                    <button onclick="mudarCategoria('Hinode')" class="catBtn" id="btn-Hinode">Hinode</button>
+                    <button onclick="mudarCategoria('Natura')" class="catBtn" id="btn-Natura">Natura</button>
+                    <button onclick="mudarCategoria('O Boticario')" class="catBtn" id="btn-OBoticario">O Boticário</button>
+                    <button onclick="verFavoritos()" class="catBtn favLink" id="btn-Favoritos"><i class="fa-solid fa-heart"></i> Favoritos</button>
+                </div>
+            </div>
+
+            <div class="brandHeaderRow">
+                <div class="productRow" id="listaPerfumes">
+                    <p style="color: white;">Carregando perfumes...</p>
+                </div>
+            </div>
+        </section>
+
+        <aside class="sidebar" th:if="${produtoAtual != null}">
+            <a href="/" class="closeBtn">Fechar</a>
+            <div class="sidebarContent">
+                <img th:src="${produtoAtual.imagemPequena}" class="card-img-top" alt="Foto do perfume">
+                <h2 th:text="${produtoAtual.nome}">Nome</h2>
+                <h3 th:text="${produtoAtual.marca}">Marca</h3>
+                <p class="perfumeDescricao" th:text="${produtoAtual.descricao}">Descrição</p>
+                <span class="perfumePreco" th:text="'R$ ' + ${#numbers.formatDecimal(produtoAtual.preco, 1, 2)}"></span>
+                <a class="perfumeBtn" target="_blank" th:href="'https://wa.me/558496377622?text= Ola! Tenho interesse no ' + ${produtoAtual.nome}">COMPRAR</a>
+            </div>
+        </aside>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+    var swiper = new Swiper(".mySwiper", {
+        spaceBetween: 0, centeredSlides: true, loop: true,
+        autoplay: { delay: 4000, disableOnInteraction: false },
+        pagination: { el: ".swiper-pagination", clickable: true },
+        navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" }
+    });
+
+    let categoriaAtual = 'Todos';
+    let meusFavoritosIds = [];
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        await carregarMeusFavoritos();
+        buscarPerfumes();
+    });
+
+    async function buscarPerfumes() {
+        const input = document.getElementById('campoBusca');
+        const termo = input ? input.value : '';
+        const container = document.getElementById('listaPerfumes');
+
+        try {
+            const response = await fetch(`/api/perfumes?categoria=${categoriaAtual}&busca=${termo}`);
+
+            if (!response.ok) {
+                container.innerHTML = '<p style="color:red;">Erro de conexão com o servidor.</p>';
+                return;
+            }
+
+            const perfumes = await response.json();
+            container.innerHTML = '';
+
+            if (perfumes.length === 0) {
+                container.innerHTML = '<p style="color:white; padding:20px;">Nenhum perfume encontrado.</p>';
+                return;
+            }
+
+            renderizarCards(perfumes, container);
+
+        } catch (erro) {
+            console.error(erro);
+        }
+    }
+
+    function mudarCategoria(novaCategoria) {
+        categoriaAtual = novaCategoria;
+        document.querySelectorAll('.catBtn').forEach(btn => btn.classList.remove('active'));
+        let btn = document.getElementById('btn-' + novaCategoria.replace(/\s+/g, ''));
+        if(btn) btn.classList.add('active');
+
+        const input = document.getElementById('campoBusca');
+        if(input) input.value = '';
+        buscarPerfumes();
+    }
+
+    async function verFavoritos() {
+        document.querySelectorAll('.catBtn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('btn-Favoritos').classList.add('active');
+
+        const container = document.getElementById('listaPerfumes');
+        container.innerHTML = '<p style="color:white;">Carregando favoritos...</p>';
+
+        try {
+            const response = await fetch('/api/perfumes/meus-favoritos');
+
+            if(!response.ok) {
+                 container.innerHTML = '<p style="color:white; padding:20px;">Faça login para ver favoritos.</p>';
+                 return;
+            }
+
+            const perfumes = await response.json();
+            container.innerHTML = '';
+
+            if (perfumes.length === 0) container.innerHTML = '<p style="color:white;">Nenhum favorito ainda.</p>';
+            else renderizarCards(perfumes, container);
+        } catch (e) {}
+    }
+
+    async function carregarMeusFavoritos() {
+        try {
+            const response = await fetch('/api/favoritos/meus-ids');
+            if (response.ok) meusFavoritosIds = await response.json();
+        } catch (e) {}
+    }
+
+    function renderizarCards(perfumes, container) {
+        perfumes.forEach(p => {
+            const preco = p.preco.toFixed(2).replace('.', ',');
+            const isFav = meusFavoritosIds.includes(p.id);
+            const heartClass = isFav ? 'fa-solid fa-heart active' : 'fa-regular fa-heart';
+            const img = (p.imagem && p.imagem.trim() !== '') ? p.imagem : '/logo.png';
+
+            const classeEsgotado = p.esgotado ? 'cardEsgotado' : '';
+            const badgeEsgotado = p.esgotado ? '<span class="badge esgotado">ESGOTADO</span>' : '';
+            const badgePromo = (p.promocao && !p.esgotado) ? '<span class="badge promocao">PROMO</span>' : '';
+
+            let displayPreco;
+            if (p.esgotado) {
+                displayPreco = '<span style="color: #666; font-size: 0.9rem;">INDISPONÍVEL</span>';
+            } else if (p.promocao) {
+                 displayPreco = `<span style="color:#e74c3c">R$ ${preco}</span>`;
+            } else {
+                 displayPreco = `<span>R$ ${preco}</span>`;
+            }
+
+            container.innerHTML += `
+                <div class="productCard ${classeEsgotado}">
+                    <div style="position: relative;">
+                        <button class="favBtn" onclick="event.preventDefault(); toggleFavorito(this, ${p.id})">
+                            <i class="${heartClass}"></i>
+                        </button>
+                        <a href="/?destaqueId=${p.id}">
+                            <img src="${img}" onerror="this.src='/logo.png'"/>
+                            ${badgeEsgotado}
+                            ${badgePromo}
+                        </a>
+                    </div>
+                    <a href="/?destaqueId=${p.id}">
+                        <span>${p.nome}</span>
+                        ${displayPreco}
+                    </a>
+                </div>
+            `;
+        });
+    }
+
+    async function toggleFavorito(btn, id) {
+        const icon = btn.querySelector('i');
+        try {
+            const res = await fetch(`/api/favoritos/toggle/${id}`, { method: 'POST' });
+            if(res.status === 401) { window.location.href = '/login'; return; }
+            if(res.ok) {
+                const ativo = await res.json();
+                icon.className = ativo ? 'fa-solid fa-heart active' : 'fa-regular fa-heart';
+                if(ativo && !meusFavoritosIds.includes(id)) meusFavoritosIds.push(id);
+                else if(!ativo) meusFavoritosIds = meusFavoritosIds.filter(x => x !== id);
+            }
+        } catch(e){}
+    }
+</script>
+</body>
+</html>
